@@ -1,0 +1,55 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: locasonly-ollama
+    restart: unless-stopped
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - locasonly-ai
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: locasonly-webui
+    restart: unless-stopped
+    depends_on:
+      - ollama
+      - searxng
+    ports:
+      - "${WEBUI_PORT:-3000}:8080"
+    volumes:
+      - open_webui_data:/app/backend/data
+    environment:
+      OLLAMA_BASE_URL: http://ollama:11434
+      ENABLE_OLLAMA_API: "true"
+      ENABLE_OPENAI_API: "false"
+      WEBUI_SECRET_KEY: ${WEBUI_SECRET_KEY}
+      WEBUI_NAME: ${WEBUI_NAME:-LocasOnly}
+    networks:
+      - locasonly-ai
+
+  searxng:
+    image: docker.io/searxng/searxng:latest
+    container_name: locasonly-searxng
+    restart: unless-stopped
+    volumes:
+      - ./searxng/settings.yml:/etc/searxng/settings.yml:ro
+      - searxng_cache:/var/cache/searxng
+    networks:
+      - locasonly-ai
+
+volumes:
+  ollama_data:
+  open_webui_data:
+  searxng_cache:
+
+networks:
+  locasonly-ai:
+    name: locasonly-ai
