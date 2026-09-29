@@ -6,6 +6,9 @@ general:
 search:
   safe_search: 0
   autocomplete: ""
+  formats:
+    - html
+    - json
 
 server:
   bind_address: "0.0.0.0"
