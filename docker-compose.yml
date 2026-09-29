@@ -30,6 +30,11 @@ services:
       OLLAMA_BASE_URL: http://ollama:11434
       ENABLE_OLLAMA_API: "true"
       ENABLE_OPENAI_API: "false"
+      ENABLE_WEB_SEARCH: "true"
+      WEB_SEARCH_ENGINE: "searxng"
+      WEB_SEARCH_RESULT_COUNT: "${WEB_SEARCH_RESULT_COUNT:-5}"
+      WEB_SEARCH_CONCURRENT_REQUESTS: "${WEB_SEARCH_CONCURRENT_REQUESTS:-10}"
+      SEARXNG_QUERY_URL: "http://searxng:8080/search"
       WEBUI_SECRET_KEY: ${WEBUI_SECRET_KEY}
       WEBUI_NAME: ${WEBUI_NAME:-LocasOnly}
     networks:
