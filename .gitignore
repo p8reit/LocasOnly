@@ -3,3 +3,7 @@
 .DS_Store
 .vscode/
 .idea/
+
+# Local agent workspaces and generated content
+workspaces/*
+!workspaces/.gitkeep
