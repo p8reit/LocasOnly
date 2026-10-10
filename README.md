@@ -289,7 +289,7 @@ docker compose logs -f searxng
 - Add a dedicated local coding model after the base platform is stable.
 - Connect Patch Notes to the shared `locasonly-ai` Docker network.
 - Connect TheHunter to the same local Ollama API.
-- Evaluate an open-source coding agent such as OpenCode.
+- Run an isolated OpenCode coding agent using the optional Docker Compose overlay.
 - Add shared RAG/vector infrastructure only if application requirements justify it.
 
 ## Security notes
@@ -303,3 +303,9 @@ Do not expose Ollama or SearXNG directly to the public Internet.
 ## License
 
 No project license has been selected yet.
+
+## Optional OpenCode agent
+
+The agent environment is separate from the default stack. It uses Qwen 3.5 9B for planning and Qwen 2.5 Coder 7B for coding, both through local Ollama inference. It mounts only `workspaces/` for editable code, has no runtime internet egress or Docker socket access, and asks for approval before edits and shell commands.
+
+See [agents/opencode/README.md](agents/opencode/README.md) for deployment, GPU tuning, and sandbox tests. Use `docker compose -f docker-compose.yml -f docker-compose.agents.yml ...` for commands involving the agent.
