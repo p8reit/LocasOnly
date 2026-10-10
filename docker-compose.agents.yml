@@ -1,0 +1,56 @@
+# Optional overlay: docker compose -f docker-compose.yml -f docker-compose.agents.yml ...
+# Does not expose a web port or change Open WebUI / SearXNG networking.
+services:
+  ollama:
+    environment:
+      OLLAMA_NUM_PARALLEL: "1"
+      OLLAMA_MAX_LOADED_MODELS: "1"
+      OLLAMA_KEEP_ALIVE: "0"
+      OLLAMA_CONTEXT_LENGTH: "16384"
+    networks:
+      - locasonly-ai
+      - agent-internal
+
+  opencode:
+    build:
+      context: ./agents/opencode
+    init: true
+    stdin_open: true
+    tty: true
+    user: "1000:1000"
+    working_dir: /workspace
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["sleep infinity"]
+    restart: unless-stopped
+    depends_on:
+      - ollama
+    environment:
+      HOME: /home/agent
+      XDG_CONFIG_HOME: /home/agent/.config
+      XDG_DATA_HOME: /home/agent/.local/share
+      XDG_CACHE_HOME: /home/agent/.cache
+      DO_NOT_TRACK: "1"
+    volumes:
+      - ./workspaces:/workspace:rw
+      - ./agents/opencode/opencode.json:/home/agent/.config/opencode/opencode.json:ro
+      - opencode-data:/home/agent/.local/share
+      - opencode-cache:/home/agent/.cache
+    read_only: true
+    tmpfs:
+      - /tmp:rw,nosuid,nodev,size=512m
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    pids_limit: 256
+    mem_limit: 4g
+    networks:
+      - agent-internal
+
+volumes:
+  opencode-data:
+  opencode-cache:
+
+networks:
+  agent-internal:
+    internal: true
